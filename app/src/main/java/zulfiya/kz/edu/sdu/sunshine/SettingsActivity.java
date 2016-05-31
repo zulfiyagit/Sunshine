@@ -4,16 +4,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 
 
 public class SettingsActivity extends PreferenceActivity
@@ -23,11 +14,11 @@ public class SettingsActivity extends PreferenceActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Add 'general' preferences, defined in the XML file
-        // TODO: Add preferences from XML
+        addPreferencesFromResource(R.xml.pref_general);
 
         // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
         // updated when the preference changes.
-        // TODO: Add preferences
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
     }
 
     /**
@@ -37,9 +28,6 @@ public class SettingsActivity extends PreferenceActivity
      */
     private void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
-        addPreferencesFromResource(R.xml.pref_general);
-
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
         preference.setOnPreferenceChangeListener(this);
 
         // Trigger the listener immediately with the preference's
