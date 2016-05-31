@@ -2,6 +2,7 @@ package zulfiya.kz.edu.sdu.sunshine.data;
 
 import android.test.AndroidTestCase;
 
+
 public class TestPractice extends AndroidTestCase {
     /*
         This gets run before every test.
