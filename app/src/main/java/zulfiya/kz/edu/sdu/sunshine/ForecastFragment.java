@@ -1,8 +1,10 @@
 package zulfiya.kz.edu.sdu.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -60,13 +62,17 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh){
+            //updateWeather();
             FetchWeatherTask weatherTask = new FetchWeatherTask();
-
-                      weatherTask.execute("050000");
+            SharedPreferences pref  = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String location = pref.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+            weatherTask.execute(location);
             return true;
         }
         return onOptionsItemSelected(item);
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
