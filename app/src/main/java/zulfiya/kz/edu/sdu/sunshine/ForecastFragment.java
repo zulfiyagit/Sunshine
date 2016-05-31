@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,12 +30,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import android.text.format.Time;
-import android.widget.Toast;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 public class ForecastFragment extends Fragment {
@@ -126,14 +121,19 @@ public class ForecastFragment extends Fragment {
             return shortenedDateFormat.format(time);
            }
 
-    private String formatHighLows(double high, double low) {
+    private String formatHighLows(double high, double low, String unitType) {
         // For presentation, assume the user doesn't care about tenths of a degree.
+        if (unitType.equals(getString(R.string.pref_units_imperial))) {
+            high = (high * 1.8) + 32;
+            low = (low * 1.8) + 32;
+
+
+        }
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
         String highLowStr = roundedHigh + "/" + roundedLow;
         return highLowStr;
-      }
-
+    }
     private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
              throws JSONException{
          final String OWM_LIST = "list";
@@ -145,12 +145,20 @@ public class ForecastFragment extends Fragment {
 
          JSONObject forecastJson = new JSONObject(forecastJsonStr);
          JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
+
          Time dayTime = new Time();
          dayTime.setToNow();
+
          int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
          dayTime = new Time();
+
          String[] resultStrs = new String[numDays];
-         for(int i = 0; i < weatherArray.length(); i++) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String unitType = sharedPref.getString(getString(R.string.pref_units_key),
+                getString(R.string.pref_units_metric));
+
+        for(int i = 0; i < weatherArray.length(); i++) {
              // For now, using the format "Day, description, hi/low"
              String day;
              String description;
@@ -172,15 +180,15 @@ public class ForecastFragment extends Fragment {
 
              double high = temperatureObject.getDouble(OWM_MAX);
              double low = temperatureObject.getDouble(OWM_MIN);
-             highAndLow = formatHighLows(high, low);
+             highAndLow = formatHighLows(high, low, unitType);
              resultStrs[i] = day + " - " + description + " - " + highAndLow;
              }
 
-         for (String s : resultStrs) {
-             Log.v(LOG_TAG, "Forecast entry: " + s);
-             }
-         return resultStrs;
-         }
+        for (String s : resultStrs) {
+            Log.v(LOG_TAG, "Forecast entry: " + s);
+        }
+        return resultStrs;
+    }
 
 
 
