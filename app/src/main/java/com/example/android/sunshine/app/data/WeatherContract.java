@@ -15,11 +15,8 @@
  */
 package com.example.android.sunshine.app.data;
 
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.Time;
@@ -168,5 +165,4 @@ public class WeatherContract {
                 return 0;
         }
     }
-
 }

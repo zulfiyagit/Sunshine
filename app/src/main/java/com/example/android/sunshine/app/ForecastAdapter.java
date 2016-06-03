@@ -9,17 +9,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.android.sunshine.app.data.WeatherContract;
-
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
- * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
+ * from a {@link Cursor} to a {@link android.widget.ListView}.
  */
 public class ForecastAdapter extends CursorAdapter {
 
     private static final int VIEW_TYPE_COUNT = 2;
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
+
+    // Flag to determine if we want to use a separate view for "today".
+    private boolean mUseTodayLayout = true;
 
     /**
      * Cache of the children views for a forecast list item.
@@ -69,7 +70,6 @@ public class ForecastAdapter extends CursorAdapter {
     }
 
     @Override
-        // Use placeholder image for now
     public void bindView(View view, Context context, Cursor cursor) {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
@@ -89,6 +89,7 @@ public class ForecastAdapter extends CursorAdapter {
                 break;
             }
         }
+
         // Read date from cursor
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
         // Find TextView and set formatted date on it
@@ -99,21 +100,28 @@ public class ForecastAdapter extends CursorAdapter {
         // Find TextView and set weather forecast on it
         viewHolder.descriptionView.setText(description);
 
+        // For accessibility, add a content description to the icon field
+        viewHolder.iconView.setContentDescription(description);
+
         // Read user preference for metric or imperial temperature units
         boolean isMetric = Utility.isMetric(context);
 
         // Read high temperature from cursor
         double high = cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP);
-        viewHolder.highTempView.setText(Utility.formatTemperature(context, high, isMetric));
+        viewHolder.highTempView.setText(Utility.formatTemperature(context, high));
 
         // Read low temperature from cursor
         double low = cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP);
-        viewHolder.lowTempView.setText(Utility.formatTemperature(context, high, isMetric));
+        viewHolder.lowTempView.setText(Utility.formatTemperature(context, low));
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        mUseTodayLayout = useTodayLayout;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return position == 0 ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (position == 0 && mUseTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override

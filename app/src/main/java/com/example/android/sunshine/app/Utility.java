@@ -38,14 +38,16 @@ public class Utility {
                 .equals(context.getString(R.string.pref_units_metric));
     }
 
-    static String formatTemperature(Context context, double temperature, boolean isMetric) {
-        double temp;
-        if ( !isMetric ) {
-            temp = 9*temperature/5+32;
-        } else {
-            temp = temperature;
+    public static String formatTemperature(Context context, double temperature) {
+        // Data stored in Celsius by default.  If user prefers to see in Fahrenheit, convert
+        // the values here.
+        String suffix = "\u00B0";
+        if (!isMetric(context)) {
+            temperature = (temperature * 1.8) + 32;
         }
-        return context.getString(R.string.format_temperature, temp);
+
+        // For presentation, assume the user doesn't care about tenths of a degree.
+        return String.format(context.getString(R.string.format_temperature), temperature);
     }
 
     static String formatDate(long dateInMilliseconds) {
@@ -53,24 +55,10 @@ public class Utility {
         return DateFormat.getDateInstance().format(date);
     }
 
-    // Format used for storing dates in the database.  ALso used for converting those strings
-    // back into date objects for comparison/processing.
     public static final String DATE_FORMAT = "yyyyMMdd";
 
-    /**
-     * Helper method to convert the database representation of the date into something to display
-     * to users.  As classy and polished a user experience as "20140102" is, we can do better.
-     *
-     * @param context Context to use for resource localization
-     * @param dateInMillis The date in milliseconds
-     * @return a user-friendly representation of the date.
-     */
+
     public static String getFriendlyDayString(Context context, long dateInMillis) {
-        // The day string for forecast uses the following logic:
-        // For today: "Today, June 8"
-        // For tomorrow:  "Tomorrow"
-        // For the next 5 days: "Wednesday" (just the day name)
-        // For all days after that: "Mon Jun 8"
 
         Time time = new Time();
         time.setToNow();
@@ -121,7 +109,7 @@ public class Utility {
             Time time = new Time();
             time.setToNow();
             // Otherwise, the format is just the day of the week (e.g "Wednesday".
-            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE"); //day of week-  E/EE/EEE:Tue, EEEE:Tuesday, EEEEE:T
             return dayFormat.format(dateInMillis);
         }
     }
@@ -137,7 +125,8 @@ public class Utility {
         Time time = new Time();
         time.setToNow();
         SimpleDateFormat dbDateFormat = new SimpleDateFormat(Utility.DATE_FORMAT);
-        SimpleDateFormat monthDayFormat = new SimpleDateFormat("MMMM dd");
+        SimpleDateFormat monthDayFormat = new SimpleDateFormat("MMMM dd");//month in year- M:1 MM:01 MMM:Jan MMMM:January MMMMM:J
+                                                                          // day in year
         String monthDayString = monthDayFormat.format(dateInMillis);
         return monthDayString;
     }
@@ -175,6 +164,12 @@ public class Utility {
         return String.format(context.getString(windFormat), windSpeed, direction);
     }
 
+    /**
+     * Helper method to provide the icon resource id according to the weather condition id returned
+     * by the OpenWeatherMap call.
+     * @param weatherId from OpenWeatherMap API response
+     * @return resource id for the corresponding icon. -1 if no relation is found.
+     */
     public static int getIconResourceForWeatherCondition(int weatherId) {
         // Based on weather code data found at:
         // http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
