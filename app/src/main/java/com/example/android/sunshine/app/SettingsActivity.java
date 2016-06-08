@@ -96,11 +96,9 @@ public class SettingsActivity extends PreferenceActivity
             if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
-
-
-        }else if (key.equals(getString(R.string.pref_location_key))){
+        } else if (key.equals(getString(R.string.pref_location_key))) {
             @SunshineSyncAdapter.LocationStatus int status = Utility.getLocationStatus(this);
-            switch (status){
+            switch (status) {
                 case SunshineSyncAdapter.LOCATION_STATUS_OK:
                     preference.setSummary(stringValue);
                     break;
@@ -111,21 +109,21 @@ public class SettingsActivity extends PreferenceActivity
                     preference.setSummary(getString(R.string.pref_location_error_description, value.toString()));
                     break;
                 default:
+                    // Note --- if the server is down we still assume the value
+                    // is valid
                     preference.setSummary(stringValue);
             }
-
-        }
-        else {
+        } else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
         }
+
     }
 
     // This gets called before the preference is changed
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         setPreferenceSummary(preference, value);
-
         return true;
     }
 
@@ -141,10 +139,13 @@ public class SettingsActivity extends PreferenceActivity
         } else if ( key.equals(getString(R.string.pref_units_key)) ) {
             // units have changed. update lists of weather entries accordingly
             getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
-        }
-        else if (key.equals(getString(R.string.pref_art_pack_key))){
+        } else if ( key.equals(getString(R.string.pref_location_status_key)) ) {
+            // our location status has changed.  Update the summary accordingly
+            Preference locationPreference = findPreference(getString(R.string.pref_location_key));
+            bindPreferenceSummaryToValue(locationPreference);
+        } else if ( key.equals(getString(R.string.pref_art_pack_key)) ) {
+            // art pack have changed. update lists of weather entries accordingly
             getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
-
         }
     }
 
